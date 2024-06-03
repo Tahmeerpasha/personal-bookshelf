@@ -14,7 +14,7 @@ Personal Bookshelf is a React application that allows users to search for books 
 
 ## Live Demo
 
-The project is deployed at:
+The project is deployed at: https://personal-bookshelf-ten.vercel.app/
 
 ## Getting Started
 

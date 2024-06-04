@@ -1,4 +1,3 @@
-// src/pages/BookShelf.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import BookDetails from './BookDetails';
@@ -23,7 +22,7 @@ const BookShelf = () => {
             <Link to="/">Back to Search</Link>
             <div>
                 {bookshelf.map((book) => (
-                    <div key={book.key}>
+                    <div key={book.key} className='card-item'>
                         <BookDetails book={book} isRemove={true} buttonFunction={removeFromBookshelf} />
                     </div>
                 ))}

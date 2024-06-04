@@ -4,6 +4,7 @@ const BookDetails = ({ book, isRemove, buttonFunction }) => {
     return (
         <>
             <div>
+                {console.log(book)}
                 <p><span>Book Title:</span> {book.title}</p>
                 <p><span>Edition count:</span>{book.edition_count}</p>
             </div>

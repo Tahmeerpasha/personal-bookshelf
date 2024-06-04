@@ -1,21 +1,36 @@
-// src/pages/BookSearch.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import BookDetails from './BookDetails';
+import { useDebounce } from '../hooks/useDebounce';
 
 const BookSearch = () => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const debouncedQuery = useDebounce(query, 500);
 
-    useEffect(() => {
-        if (query.length > 0) {
-            fetch(`https://openlibrary.org/search.json?q=${query}&limit=10&page=1`)
-                .then((response) => response.json())
-                .then((data) => setResults(data.docs));
+    const fetchBooks = useCallback(async () => {
+        if (debouncedQuery.length > 0) {
+            setLoading(true);
+            const response = await fetch(`https://openlibrary.org/search.json?q=${debouncedQuery}&limit=10&page=1`);
+            const data = await response.json();
+            setResults(data.docs);
+            setLoading(false);
         } else {
             setResults([]);
         }
-    }, [query]);
+    }, [debouncedQuery]);
+
+    useEffect(() => {
+        fetchBooks();
+    }, [fetchBooks]);
+
+    const addToBookshelf = (book) => {
+        const currentBooks = JSON.parse(localStorage.getItem('bookshelf')) || [];
+        localStorage.setItem('bookshelf', JSON.stringify([...currentBooks, book]));
+
+        setResults(results.filter(result => result.key !== book.key));
+    };
 
     return (
         <div>
@@ -29,24 +44,23 @@ const BookSearch = () => {
                         onChange={(e) => setQuery(e.target.value)}
                     />
                 </div>
-                <Link to="/bookshelf" >
+                <Link to="/bookshelf">
                     <button>My Bookshelf</button>
                 </Link>
             </div>
-            <div className='card'>
-                {results.map((book) => (
-                    <div key={book.key} className='card-item'>
-                        <BookDetails book={book} isRemove={false} buttonFunction={addToBookshelf} />
-                    </div>
-                ))}
-            </div>
+            {loading ? (
+                <div className="loading">Loading...</div>
+            ) : (
+                <div className='card'>
+                    {results.map((book) => (
+                        <div key={book.key} className='card-item'>
+                            <BookDetails book={book} isRemove={false} buttonFunction={addToBookshelf} />
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
-
-const addToBookshelf = (book) => {
-    const currentBooks = JSON.parse(localStorage.getItem('bookshelf')) || [];
-    localStorage.setItem('bookshelf', JSON.stringify([...currentBooks, book]));
-};
 
 export default BookSearch;
